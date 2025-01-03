@@ -1,0 +1,39 @@
+name: Restructure Repository
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  restructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Move files to root
+        run: |
+          # 임시 디렉토리 생성
+          mkdir -p temp_dir
+          
+          # learn-slowly/withai의 내용을 임시 디렉토리로 이동
+          cp -r learn-slowly/withai/* temp_dir/
+          cp -r learn-slowly/withai/.* temp_dir/ 2>/dev/null || true
+          
+          # 기존 파일 제거
+          rm -rf learn-slowly
+          
+          # 임시 디렉토리의 내용을 루트로 이동
+          cp -r temp_dir/* .
+          cp -r temp_dir/.* . 2>/dev/null || true
+          rm -rf temp_dir
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Restructure repository: Move files to root" || echo "No changes to commit"
+          git push
