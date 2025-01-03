@@ -1,0 +1,24 @@
+# 모든 파일과 폴더를 먼저 무시
+/*
+
+# .gitignore 파일 자체는 추적
+!/.gitignore
+
+# content-production 폴더와 그 안의 모든 것을 추적
+!/content-production/
+!/content-production/**
+
+# foreign-lang 폴더와 그 안의 모든 것을 추적
+!/foreign-lang/
+!/foreign-lang/**
+
+# webdev 폴더와 그 안의 모든 것을 추적
+!/webdev/
+!/webdev/**
+
+# 문서 파일들 추적
+!/*.md
+
+# GitHub Actions 설정 추적
+!/.github/
+!/.github/**
