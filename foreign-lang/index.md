@@ -6,7 +6,7 @@
 
 
 ## English
-- [2025-01-05](foreign-lang/en/20250105.md)
+- [2025-01-05](en/20250105.md)
 
 - 혹시 개발자를 위한 영어 궁금하면 [여기](https://www.freecodecamp.org/learn/a2-english-for-developers/)라도...
 - claude가 추천하는 [영어학습가이드](en/english-learning-guide.md)
