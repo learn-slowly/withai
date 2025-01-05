@@ -95,34 +95,52 @@ jobs:
               
               # 현재 시간 추가
               current_time = get_korean_time()
-              time_update = f"\n### Last updated: {current_time}\n"
+              time_update = f"\n#### Last updated: {current_time}\n"
               
               # 기존의 Last updated 라인이 있다면 제거
-              content = re.sub(r'\n### Last updated:.*?\n', '', content, flags=re.MULTILINE)
+              content = re.sub(r'\n#### Last updated:.*?\n', '', content, flags=re.MULTILINE)
               
               # English와 Japanese 섹션 찾기
               en_section = re.search(r'\n## English\n', content)
               jp_section = re.search(r'\n## Japanese\n', content)
               
+              # 기존 링크 찾기
+              existing_en_links = set()
+              existing_jp_links = set()
+              
+              if en_section:
+                  en_content = content[en_section.end():]
+                  jp_pos = en_content.find('## Japanese') if '## Japanese' in en_content else len(en_content)
+                  en_content = en_content[:jp_pos]
+                  for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]', en_content):
+                      existing_en_links.add(match.group(1))
+              
+              if jp_section:
+                  jp_content = content[jp_section.end():]
+                  for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]', jp_content):
+                      existing_jp_links.add(match.group(1))
+              
               if en_section:
                   en_pos = en_section.end()
-                  # 새로운 영어 파일 링크 추가
+                  # 새로운 영어 파일 링크 추가 (중복 체크)
                   for file in sorted(en_files, reverse=True):
                       date = os.path.splitext(os.path.basename(file))[0]
                       if re.match(r'^\d{8}$', date):
                           formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
-                          link = f"\n- [{formatted_date}](en/{date}.md)\n"
-                          content = content[:en_pos] + link + content[en_pos:]
+                          if formatted_date not in existing_en_links:  # 중복 체크
+                              link = f"\n- [{formatted_date}](en/{date}.md)\n"
+                              content = content[:en_pos] + link + content[en_pos:]
               
               if jp_section:
                   jp_pos = jp_section.end()
-                  # 새로운 일본어 파일 링크 추가
+                  # 새로운 일본어 파일 링크 추가 (중복 체크)
                   for file in sorted(jp_files, reverse=True):
                       date = os.path.splitext(os.path.basename(file))[0]
                       if re.match(r'^\d{8}$', date):
                           formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
-                          link = f"\n- [{formatted_date}](jp/{date}.md)\n"
-                          content = content[:jp_pos] + link + content[jp_pos:]
+                          if formatted_date not in existing_jp_links:  # 중복 체크
+                              link = f"\n- [{formatted_date}](jp/{date}.md)\n"
+                              content = content[:jp_pos] + link + content[jp_pos:]
               
               # Last updated 시간을 h1 바로 아래에 추가
               updated_content = content[:h1_end] + time_update + content[h1_end:]
