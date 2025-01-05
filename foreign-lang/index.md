@@ -1,4 +1,6 @@
 # 외국어 배우기
+#### Last updated: 2025-01-05 17:23:46 KST
+
 #### Last updated: 2025-01-05 17:21:42 KST
 
 > 평생의 숙원이나 언제나 뒤로 밀려왔다.   
@@ -11,6 +13,9 @@
 - [2025-01-05](foreign-lang/en/20250105.md)
 
 
+- [2025-01-05](foreign-lang/en/20250105.md)
+
+
 - [2025-01-03](en/20250103.md)
 
 - 혹시 개발자를 위한 영어 궁금하면 [여기](https://www.freecodecamp.org/learn/a2-english-for-developers/)라도...
@@ -19,6 +24,7 @@
 - 내가 진행할 영어학습 [PRD](en/en-studyprd.md)
 
 ## Japanese
+
 
    
 - [히라가나](jp/hiragana-guide.md)
