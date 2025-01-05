@@ -1,20 +1,4 @@
 # 외국어 배우기
-#### Last updated: 2025-01-05 17:45:59 KST
-
-#### Last updated: 2025-01-05 17:45:45 KST
-
-#### Last updated: 2025-01-05 17:45:29 KST
-
-#### Last updated: 2025-01-05 17:45:18 KST
-
-#### Last updated: 2025-01-05 17:44:00 KST
-
-#### Last updated: 2025-01-05 17:24:27 KST
-
-#### Last updated: 2025-01-05 17:24:04 KST
-
-#### Last updated: 2025-01-05 17:23:46 KST
-
 #### Last updated: 2025-01-05 17:21:42 KST
 
 > 평생의 숙원이나 언제나 뒤로 밀려왔다.   
