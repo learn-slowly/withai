@@ -1,5 +1,5 @@
 # 외국어 배우기
-#### Last updated: 2025-01-05 21:46:54 KST
+#### Last updated: 2025-01-05 22:27:18 KST
 
 > 평생의 숙원이나 언제나 뒤로 밀려왔다.   
 > 지금도 딱히 달라진 건 없다.
@@ -16,6 +16,8 @@
 - 내가 진행할 영어학습 [PRD](en/en-studyprd.md)
 
 ## Japanese
+
+- [2025-01-05](jp/20250105.md)
 
 - [히라가나](jp/hiragana-guide.md)
 - [카타카나](jp/katakana-guide.md)
