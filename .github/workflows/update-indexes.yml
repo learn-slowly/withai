@@ -58,13 +58,16 @@ jobs:
               current_time = get_korean_time()
               time_update = f"\n#### Last updated: {current_time}\n"
               
-              # 새로운 파일 링크 추가
+              # 새로운 파일 링크 생성
               new_links = ""
               for file in sorted(new_files, reverse=True):
                   date = os.path.splitext(os.path.basename(file))[0]
                   if re.match(r'^\d{8}$', date):
                       formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
                       new_links += f"\n- [{formatted_date}]({file})\n"
+              
+              # 기존 내용에서 Last updated 이후 부분을 제거
+              content = re.sub(r'\n#### Last updated:.*?(?=\n## |$)', '', content, flags=re.DOTALL)
               
               # 컨텐츠 업데이트
               updated_content = content[:h1_end] + time_update + new_links + content[h1_end:]
@@ -112,8 +115,12 @@ jobs:
               updated_sections = []
               for section in sections:
                   if section.startswith('Japanese'):
+                      # 기존 링크 제거 후 새 링크 추가
+                      section = re.sub(r'\n- \[.*?\].*?\n', '\n', section)
                       updated_sections.append(f"Japanese{jp_links}\n{section[8:]}")
                   elif section.startswith('English'):
+                      # 기존 링크 제거 후 새 링크 추가
+                      section = re.sub(r'\n- \[.*?\].*?\n', '\n', section)
                       updated_sections.append(f"English{en_links}\n{section[7:]}")
                   else:
                       updated_sections.append(section)
