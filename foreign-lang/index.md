@@ -1,4 +1,6 @@
 # 외국어 배우기
+### Last updated: 2025-01-05 21:04:32 KST
+
 #### Last updated: 2025-01-05 20:35:31 KST
 > 평생의 숙원이나 언제나 뒤로 밀려왔다.   
 > 지금도 딱히 달라진 건 없다.
@@ -6,6 +8,8 @@
 
 
 ## English
+
+- [2025-01-05](en/20250105.md)
 - [2025-01-05](en/20250105.md)
 
 - 혹시 개발자를 위한 영어 궁금하면 [여기](https://www.freecodecamp.org/learn/a2-english-for-developers/)라도...
