@@ -118,7 +118,7 @@ jobs:
                   if re.match(r'^\d{8}$', date):
                       formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
                       if formatted_date not in existing_jp_links:  # 중복 체크
-                          jp_links += f"\n- [{formatted_date}](foreign-lang/jp/{file})\n"
+                          jp_links += f"\n- [{formatted_date}](jp/{file})\n"
                       
               en_links = ""
               for file in sorted(en_files, reverse=True):
@@ -126,7 +126,7 @@ jobs:
                   if re.match(r'^\d{8}$', date):
                       formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
                       if formatted_date not in existing_en_links:  # 중복 체크
-                          en_links += f"\n- [{formatted_date}](foreign-lang/en/{file})\n"
+                          en_links += f"\n- [{formatted_date}](en/{file})\n"
               
               # 각 섹션 업데이트 (기존 내용 유지)
               updated_sections = []
