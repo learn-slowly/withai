@@ -128,13 +128,17 @@ jobs:
                       if formatted_date not in existing_en_links:  # 중복 체크
                           en_links += f"\n- [{formatted_date}](en/{file})\n"
               
-              # 각 섹션 업데이트 (기존 내용 유지)
+              # 각 섹션 업데이트 부분 수정
               updated_sections = []
               for section in sections:
                   if section.startswith('Japanese'):
-                      updated_sections.append(f"Japanese{jp_links}{section[8:]}")
+                      # 기존 링크 제거하고 새로운 링크만 추가
+                      clean_section = re.sub(r'\n- \[\d{4}-\d{2}-\d{2}\]\(jp/\d{8}\.md\)\n', '\n', section[8:])
+                      updated_sections.append(f"Japanese{jp_links}{clean_section}")
                   elif section.startswith('English'):
-                      updated_sections.append(f"English{en_links}{section[7:]}")
+                      # 기존 링크 제거하고 새로운 링크만 추가
+                      clean_section = re.sub(r'\n- \[\d{4}-\d{2}-\d{2}\]\(en/\d{8}\.md\)\n', '\n', section[7:])
+                      updated_sections.append(f"English{en_links}{clean_section}")
                   else:
                       updated_sections.append(section)
               
