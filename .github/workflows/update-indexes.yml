@@ -148,21 +148,28 @@ jobs:
                   f.write(updated_content)
 
           def update_readme():
-              readme_path = 'README.md'
-              if not os.path.exists(readme_path):
-                  return
-                  
+              # 대소문자 구분 없이 파일 찾기
+              for filename in os.listdir('.'):
+                  if filename.lower() == 'readme.md':
+                      readme_path = filename
+                      break
+              else:
+                  return  # README.md 파일을 찾지 못함
+              
               with open(readme_path, 'r', encoding='utf-8') as f:
                   content = f.read()
-                  
+              
               current_time = get_korean_time()
               time_update = f"\n#### Last updated: {current_time}\n"
               
-              # 기존의 Last updated 라인이 있다면 제거
-              content = re.sub(r'\n#### Last updated:.*?\n', '', content, flags=re.MULTILINE)
+              # 파일 끝의 Last updated 찾아서 제거
+              content = re.sub(r'\n#### Last updated:.*?$', '', content, flags=re.MULTILINE | re.DOTALL)
               
-              # 파일 끝에 새로운 업데이트 시간 추가
+              # 내용 끝에 불필요한 개행 제거 후 새로운 시간 추가
               updated_content = content.rstrip() + time_update
+              
+              # 디버깅을 위한 출력
+              print(f"Updating {readme_path} with new timestamp")
               
               with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(updated_content)
