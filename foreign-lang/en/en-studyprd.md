@@ -95,3 +95,131 @@
 - 문맥에 맞는 적절한 어휘 선택 지도
 - 지속적인 격려와 동기부여
 
+## 6. 학습 템플릿
+
+### 문서 기본 구조
+
+# [제목]
+### [날짜]
+### 출처: [URL]
+
+[![제목](썸네일 이미지 URL)](비디오 URL)
+
+[Full Script](스크립트-파일명.md)
+
+---
+
+# Analysis of "[제목]"
+
+## Table of Contents
+1. [Overall Summary](#overall-summary)
+2. [주제1](#topic-1)
+3. [주제2](#topic-2)
+4. [주제3](#topic-3)
+5. [Solutions](#solutions)
+6. [Writing Practice](#writing-practice)
+7. [Writing Analysis](#writing-analysis)
+8. [Dialogue Practice](#dialogue-practice)
+
+### 각 섹션 템플릿
+
+#### Overall Summary
+## Overall Summary
+#### Content Summary
+- 핵심 내용 요약
+- 주요 포인트 나열
+
+#### Role in Overall Structure
+- 전체 구조에서의 역할 설명
+- 다른 섹션과의 연결성
+
+#### Useful Expressions
+1. "[표현1]"
+   - 용도 설명
+   - 대체 표현
+
+2. "[표현2]"
+   - 용도 설명
+   - 대체 표현
+
+#### Example Conversations
+A: [질문/상황]
+B: [응답/설명]
+A: [후속 질문]
+B: [후속 응답]
+
+#### 주제별 분석
+## [주제명]
+#### Content Summary
+- 주요 내용 정리
+- 핵심 개념 설명
+- 세부 요점 나열
+
+#### Role in Overall Structure
+- 전체 내용에서의 위치
+- 다른 섹션과의 관계
+- 주제의 중요성
+
+#### Useful Expressions
+1. "[표현1]"
+   - 용도 설명
+   - 대체 표현
+
+2. "[표현2]"
+   - 용도 설명
+   - 대체 표현
+
+#### Example Conversations
+A: [질문/상황]
+B: [응답/설명]
+A: [후속 질문]
+B: [후속 응답]
+
+#### Writing Practice
+## Writing Practice
+### Writing Practice Questions
+1. [질문1]
+2. [질문2]
+3. [질문3]
+4. [질문4]
+5. [질문5]
+
+### Writing Prompt
+[구체적인 작문 지시사항]
+
+### Your Submission
+[학습자의 작문 내용]
+
+### Evaluation and Corrections
+#### 평가
+1. [문법적 오류 분석]
+2. [문장 구조 분석]
+3. [내용 구성 분석]
+4. [장점 분석]
+
+#### Corrected Sentences
+1. [수정된 문장1]
+2. [수정된 문장2]
+3. [수정된 문장3]
+4. [수정된 문장4]
+5. [수정된 문장5]
+
+#### Dialogue Practice
+## Dialogue Practice
+
+### [주제1]
+Q: [질문]
+A: [모범 답변]
+
+Q: [후속 질문]
+A: [모범 답변]
+
+### [주제2]
+Q: [질문]
+A: [모범 답변]
+
+Q: [후속 질문]
+A: [모범 답변]
+
+[추가 주제들...]
+
