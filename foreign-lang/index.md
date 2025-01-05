@@ -1,4 +1,6 @@
 # 외국어 배우기
+#### Last updated: 2025-01-05 17:45:18 KST
+
 #### Last updated: 2025-01-05 17:44:00 KST
 
 #### Last updated: 2025-01-05 17:24:27 KST
@@ -20,6 +22,8 @@
 
 
 
+
+
 - 혹시 개발자를 위한 영어 궁금하면 [여기](https://www.freecodecamp.org/learn/a2-english-for-developers/)라도...
 - claude가 추천하는 [영어학습가이드](en/english-learning-guide.md)
 - 유투브로 영어공부할때 [자막 다운받기](https://downsub.com/)
@@ -28,8 +32,8 @@
 ## Japanese
 
 
+
    
-- [카타카나](jp/katakana-guide.md)
 - 내가 진행할 일어학습 [PRD](jp/jp-studyprd.md)
    
 
