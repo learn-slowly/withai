@@ -2,12 +2,6 @@ name: Update Index Files
 
 on:
   push:
-    paths:
-      - 'content-production/**.md'
-      - 'webdev/**.md'
-      - 'foreign-lang/en/**.md'
-      - 'foreign-lang/jp/**.md'
-      - 'README.md'
     branches:
       - main
 
@@ -59,6 +53,9 @@ jobs:
               current_time = get_korean_time()
               time_update = f"\n#### Last updated: {current_time}\n"
               
+              # 기존의 Last updated 라인이 있다면 제거
+              content = re.sub(r'\n#### Last updated:.*?\n', '', content, flags=re.MULTILINE)
+              
               # 기존 링크 찾기
               existing_links = set()
               for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]', content):
@@ -75,6 +72,9 @@ jobs:
               
               # 컨텐츠 업데이트 (기존 내용 유지)
               updated_content = content[:h1_end] + time_update + new_links + content[h1_end:]
+              
+              # 혹시 모를 중복 제거를 위한 추가 처리
+              updated_content = re.sub(r'(\n#### Last updated:.*?\n).*?(\n#### Last updated:.*?\n)', r'\2', updated_content, flags=re.DOTALL)
               
               with open(index_path, 'w', encoding='utf-8') as f:
                   f.write(updated_content)
@@ -96,6 +96,9 @@ jobs:
               # 현재 시간 추가
               current_time = get_korean_time()
               time_update = f"\n#### Last updated: {current_time}\n"
+              
+              # 기존의 Last updated 라인이 있다면 제거
+              content = re.sub(r'\n#### Last updated:.*?\n', '', content, flags=re.MULTILINE)
               
               # 기존 내용에서 ## Japanese와 ## English 섹션 찾기
               sections = content[h1_end:].split('\n## ')
@@ -137,6 +140,9 @@ jobs:
               
               # 컨텐츠 업데이트
               updated_content = content[:h1_end] + time_update + '\n## '.join(updated_sections)
+              
+              # 혹시 모를 중복 제거를 위한 추가 처리
+              updated_content = re.sub(r'(\n#### Last updated:.*?\n).*?(\n#### Last updated:.*?\n)', r'\2', updated_content, flags=re.DOTALL)
               
               with open(index_path, 'w', encoding='utf-8') as f:
                   f.write(updated_content)
