@@ -1,138 +1,148 @@
-name: Update Directory Indexes
+name: Update Index Files
 
-# markdown 파일이 변경될 때마다 실행
 on:
   push:
     paths:
-      - 'learn-slowly/withai/**/*.md'  # learn-slowly/withai/ 폴더의 md 파일만 감시
+      - 'content-production/**.md'
+      - 'webdev/**.md'
+      - 'foreign-lang/en/**.md'
+      - 'foreign-lang/jp/**.md'
     branches:
       - main
 
 jobs:
   update-indexes:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-
-      - name: Update directory indexes
+          
+      - name: Update index files
         run: |
-          python - <<EOF
+          python3 << 'EOF'
           import os
           import re
           from datetime import datetime
-          from pathlib import Path
+          import pytz
 
-          def update_directory_index(directory):
-              # 디렉토리 내의 날짜형식 마크다운 파일 찾기
-              date_files = []
-              dir_path = Path(directory)
-              
-              for file in dir_path.glob('*.md'):
-                  if re.match(r'\d{8}\.md$', file.name):
-                      date_files.append(file)
+          def get_korean_time():
+              kst = pytz.timezone('Asia/Seoul')
+              now = datetime.now(kst)
+              return now.strftime('%Y-%m-%d %H:%M:%S')
 
-              if not date_files:
-                  return False
-
-              # 날짜순 정렬 (최신순)
-              date_files.sort(reverse=True)
-
-              # 기존 index.md 읽기
-              index_path = dir_path / 'index.md'
-              if index_path.exists():
-                  with open(index_path, 'r', encoding='utf-8') as f:
-                      existing_content = f.read()
-              else:
-                  existing_content = f"# {dir_path.name}\n\n"
-
-              # Last updated 섹션 찾기 또는 추가하기
-              last_updated = f"### Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} KST\n\n"
-              if '### Last updated:' in existing_content:
-                  # 기존 Last updated 섹션 교체
-                  existing_content = re.sub(r'### Last updated:.*?\n\n', last_updated, existing_content, flags=re.DOTALL)
-              else:
-                  # 첫 번째 제목 다음에 Last updated 섹션 추가
-                  first_title_end = existing_content.find('\n\n', existing_content.find('#'))
-                  if first_title_end != -1:
-                      existing_content = existing_content[:first_title_end + 2] + last_updated + existing_content[first_title_end + 2:]
-                  else:
-                      existing_content += '\n' + last_updated
-
-              # 새로운 파일 링크 추가
-              for file in date_files:
-                  date = re.match(r'(\d{4})(\d{2})(\d{2})\.md', file.name)
-                  if date:
-                      formatted_date = f"{date.group(1)}-{date.group(2)}-{date.group(3)}"
-                      link = f"- [{formatted_date}]({file.name})\n"
-                      if link not in existing_content:
-                          # Last updated 섹션 바로 다음에 새 링크 추가
-                          insert_pos = existing_content.find('\n\n', existing_content.find('### Last updated:')) + 2
-                          existing_content = existing_content[:insert_pos] + link + existing_content[insert_pos:]
-
-              # index.md 파일 쓰기
-              with open(index_path, 'w', encoding='utf-8') as f:
-                  f.write(existing_content)
-
-              return True
-
-          # learn-slowly/withai/ 폴더만 검사
-          base_dir = 'learn-slowly/withai'
-          updated_dirs = []
-          
-          for root, dirs, files in os.walk(base_dir):
-              # .git 디렉토리 제외
-              if '.git' in root:
-                  continue
+          def update_index_file(index_path, new_files):
+              if not os.path.exists(index_path):
+                  return
                   
-              # 날짜형식 마크다운 파일이 있는 디렉토리 찾기
-              has_date_files = any(re.match(r'\d{8}\.md$', f) for f in files)
+              with open(index_path, 'r', encoding='utf-8') as f:
+                  content = f.read()
+                  
+              # H1 제목 찾기
+              h1_match = re.search(r'^# .*$', content, re.MULTILINE)
+              if not h1_match:
+                  return
+                  
+              h1_end = h1_match.end()
               
-              if has_date_files:
-                  if update_directory_index(root):
-                      updated_dirs.append(root)
-
-          # 결과 출력
-          if updated_dirs:
-              print("Updated indexes in:")
-              for dir_path in updated_dirs:
-                  print(f"- {dir_path}")
-          else:
-              print("No directories needed updating")
-
-          # 루트의 readme.md 파일 업데이트
-          readme_path = Path('learn-slowly/withai/readme.md')
-          if readme_path.exists():
-              with open(readme_path, 'r', encoding='utf-8') as f:
-                  readme_content = f.read()
-
-              last_updated = f"### Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} KST"
+              # 현재 시간 추가
+              current_time = get_korean_time()
+              time_update = f"\n### Last updated: {current_time}\n"
               
-              if '### Last updated:' in readme_content:
-                  # 기존 Last updated 라인 교체
-                  readme_content = re.sub(r'### Last updated:.*$', last_updated, readme_content, flags=re.MULTILINE)
-              else:
-                  # 파일 끝에 Last updated 추가
-                  readme_content = readme_content.rstrip() + f"\n\n{last_updated}"
+              # 새로운 파일 링크 추가
+              new_links = ""
+              for file in sorted(new_files, reverse=True):
+                  date = os.path.splitext(os.path.basename(file))[0]
+                  if re.match(r'^\d{8}$', date):
+                      formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+                      new_links += f"\n## [{formatted_date}]({file})\n"
+              
+              # 컨텐츠 업데이트
+              updated_content = content[:h1_end] + time_update + new_links + content[h1_end:]
+              
+              with open(index_path, 'w', encoding='utf-8') as f:
+                  f.write(updated_content)
 
-              with open(readme_path, 'w', encoding='utf-8') as f:
-                  f.write(readme_content)
-              print("Updated readme.md")
+          def update_foreign_lang_index(index_path, jp_files, en_files):
+              if not os.path.exists(index_path):
+                  return
+                  
+              with open(index_path, 'r', encoding='utf-8') as f:
+                  content = f.read()
+                  
+              # H1 제목 찾기
+              h1_match = re.search(r'^# .*$', content, re.MULTILINE)
+              if not h1_match:
+                  return
+                  
+              h1_end = h1_match.end()
+              
+              # 현재 시간 추가
+              current_time = get_korean_time()
+              time_update = f"\n### Last updated: {current_time}\n"
+              
+              # Japanese 섹션 업데이트
+              jp_section = "\n## Japanese\n"
+              for file in sorted(jp_files, reverse=True):
+                  date = os.path.splitext(os.path.basename(file))[0]
+                  if re.match(r'^\d{8}$', date):
+                      formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+                      jp_section += f"\n## [{formatted_date}]({file})\n"
+              
+              # English 섹션 업데이트
+              en_section = "\n## English\n"
+              for file in sorted(en_files, reverse=True):
+                  date = os.path.splitext(os.path.basename(file))[0]
+                  if re.match(r'^\d{8}$', date):
+                      formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+                      en_section += f"\n## [{formatted_date}]({file})\n"
+              
+              # 컨텐츠 업데이트
+              updated_content = content[:h1_end] + time_update + jp_section + en_section
+              
+              with open(index_path, 'w', encoding='utf-8') as f:
+                  f.write(updated_content)
+
+          def update_readme():
+              if not os.path.exists('README.md'):
+                  return
+                  
+              with open('README.md', 'r', encoding='utf-8') as f:
+                  content = f.read()
+                  
+              current_time = get_korean_time()
+              time_update = f"\n### Last updated: {current_time}\n"
+              
+              # H1 제목 찾기
+              h1_match = re.search(r'^# .*$', content, re.MULTILINE)
+              if h1_match:
+                  h1_end = h1_match.end()
+                  updated_content = content[:h1_end] + time_update + content[h1_end:]
+                  
+                  with open('README.md', 'w', encoding='utf-8') as f:
+                      f.write(updated_content)
+
+          # 각 폴더의 마크다운 파일 수집
+          content_prod_files = [f for f in os.listdir('content-production') if f.endswith('.md') and f != 'index.md']
+          webdev_files = [f for f in os.listdir('webdev') if f.endswith('.md') and f != 'index.md']
+          jp_files = [f for f in os.listdir('foreign-lang/jp') if f.endswith('.md')]
+          en_files = [f for f in os.listdir('foreign-lang/en') if f.endswith('.md')]
+
+          # 인덱스 파일 업데이트
+          update_index_file('content-production/index.md', content_prod_files)
+          update_index_file('webdev/index.md', webdev_files)
+          update_foreign_lang_index('foreign-lang/index.md', jp_files, en_files)
+          update_readme()
           EOF
 
-      # 변경사항이 있으면 커밋하고 푸시
-      - name: Commit and push if changed
+      - name: Commit changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add "learn-slowly/withai/**/index.md"
-          git add "learn-slowly/withai/readme.md"  # readme.md도 추가
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update directory indexes [skip ci]" && git push)
+          git add -A
+          git commit -m "Update index files" || exit 0
+          git push
