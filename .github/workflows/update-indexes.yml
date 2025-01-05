@@ -85,24 +85,36 @@ jobs:
               current_time = get_korean_time()
               time_update = f"\n### Last updated: {current_time}\n"
               
-              # Japanese 섹션 업데이트
-              jp_section = "\n## Japanese\n"
+              # 기존 내용에서 ## Japanese와 ## English 섹션 찾기
+              sections = content[h1_end:].split('\n## ')
+              
+              # 새로운 파일 링크 생성
+              jp_links = ""
               for file in sorted(jp_files, reverse=True):
                   date = os.path.splitext(os.path.basename(file))[0]
                   if re.match(r'^\d{8}$', date):
                       formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
-                      jp_section += f"\n## [{formatted_date}]({file})\n"
-              
-              # English 섹션 업데이트
-              en_section = "\n## English\n"
+                      jp_links += f"\n## [{formatted_date}](foreign-lang/jp/{file})\n"
+                      
+              en_links = ""
               for file in sorted(en_files, reverse=True):
                   date = os.path.splitext(os.path.basename(file))[0]
                   if re.match(r'^\d{8}$', date):
                       formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
-                      en_section += f"\n## [{formatted_date}]({file})\n"
+                      en_links += f"\n## [{formatted_date}](foreign-lang/en/{file})\n"
+              
+              # 각 섹션 업데이트
+              updated_sections = []
+              for section in sections:
+                  if section.startswith('Japanese'):
+                      updated_sections.append(f"Japanese{jp_links}\n{section[8:]}")
+                  elif section.startswith('English'):
+                      updated_sections.append(f"English{en_links}\n{section[7:]}")
+                  else:
+                      updated_sections.append(section)
               
               # 컨텐츠 업데이트
-              updated_content = content[:h1_end] + time_update + jp_section + en_section
+              updated_content = content[:h1_end] + time_update + '\n## '.join(updated_sections)
               
               with open(index_path, 'w', encoding='utf-8') as f:
                   f.write(updated_content)
