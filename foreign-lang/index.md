@@ -1,4 +1,6 @@
 # 외국어 배우기
+#### Last updated: 2025-01-05 17:21:42 KST
+
 > 평생의 숙원이나 언제나 뒤로 밀려왔다.   
 > 지금도 딱히 달라진 건 없다.
 > 자료가 넘처나는 세상. 그냥 좀 해라. 에휴...
@@ -6,6 +8,9 @@
 ### Last updated: 2025-01-03 16:53:16 KST
 
 ## English
+- [2025-01-05](foreign-lang/en/20250105.md)
+
+
 - [2025-01-03](en/20250103.md)
 
 - 혹시 개발자를 위한 영어 궁금하면 [여기](https://www.freecodecamp.org/learn/a2-english-for-developers/)라도...
@@ -14,6 +19,7 @@
 - 내가 진행할 영어학습 [PRD](en/en-studyprd.md)
 
 ## Japanese
+
    
 - [히라가나](jp/hiragana-guide.md)
 - [카타카나](jp/katakana-guide.md)
