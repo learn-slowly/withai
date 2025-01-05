@@ -106,9 +106,9 @@ jobs:
               # 기존 링크 찾기
               existing_jp_links = set()
               existing_en_links = set()
-              for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]\(foreign-lang/jp/.*?\)', content):
+              for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]\(jp/\d{8}\.md\)', content):
                   existing_jp_links.add(match.group(1))
-              for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]\(foreign-lang/en/.*?\)', content):
+              for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]\(en/\d{8}\.md\)', content):
                   existing_en_links.add(match.group(1))
               
               # 새로운 파일 링크 생성 (중복 제외)
