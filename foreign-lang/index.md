@@ -9,17 +9,6 @@
 ## English
 - [2025-01-05](foreign-lang/en/20250105.md)
 
-
-
-
-
-
-
-
-
-
-
-
 - 혹시 개발자를 위한 영어 궁금하면 [여기](https://www.freecodecamp.org/learn/a2-english-for-developers/)라도...
 - claude가 추천하는 [영어학습가이드](en/english-learning-guide.md)
 - 유투브로 영어공부할때 [자막 다운받기](https://downsub.com/)
@@ -27,12 +16,8 @@
 
 ## Japanese
 
-
-
-
-
-
-   
+- [히라가나](jp/hiragana-guide.md)
+- [카타카나](jp/katakana-guide.md)
 - 내가 진행할 일어학습 [PRD](jp/jp-studyprd.md)
    
 

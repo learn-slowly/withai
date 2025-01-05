@@ -7,6 +7,7 @@ on:
       - 'webdev/**.md'
       - 'foreign-lang/en/**.md'
       - 'foreign-lang/jp/**.md'
+      - 'README.md'
     branches:
       - main
 
@@ -58,18 +59,21 @@ jobs:
               current_time = get_korean_time()
               time_update = f"\n#### Last updated: {current_time}\n"
               
-              # 새로운 파일 링크 생성
+              # 기존 링크 찾기
+              existing_links = set()
+              for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]', content):
+                  existing_links.add(match.group(1))
+              
+              # 새로운 파일 링크 생성 (중복 제외)
               new_links = ""
               for file in sorted(new_files, reverse=True):
                   date = os.path.splitext(os.path.basename(file))[0]
                   if re.match(r'^\d{8}$', date):
                       formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
-                      new_links += f"\n- [{formatted_date}]({file})\n"
+                      if formatted_date not in existing_links:  # 중복 체크
+                          new_links += f"\n- [{formatted_date}]({file})\n"
               
-              # 기존 내용에서 Last updated 이후 부분을 제거
-              content = re.sub(r'\n#### Last updated:.*?(?=\n## |$)', '', content, flags=re.DOTALL)
-              
-              # 컨텐츠 업데이트
+              # 컨텐츠 업데이트 (기존 내용 유지)
               updated_content = content[:h1_end] + time_update + new_links + content[h1_end:]
               
               with open(index_path, 'w', encoding='utf-8') as f:
@@ -96,32 +100,38 @@ jobs:
               # 기존 내용에서 ## Japanese와 ## English 섹션 찾기
               sections = content[h1_end:].split('\n## ')
               
-              # 새로운 파일 링크 생성
+              # 기존 링크 찾기
+              existing_jp_links = set()
+              existing_en_links = set()
+              for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]\(foreign-lang/jp/.*?\)', content):
+                  existing_jp_links.add(match.group(1))
+              for match in re.finditer(r'\[(\d{4}-\d{2}-\d{2})\]\(foreign-lang/en/.*?\)', content):
+                  existing_en_links.add(match.group(1))
+              
+              # 새로운 파일 링크 생성 (중복 제외)
               jp_links = ""
               for file in sorted(jp_files, reverse=True):
                   date = os.path.splitext(os.path.basename(file))[0]
                   if re.match(r'^\d{8}$', date):
                       formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
-                      jp_links += f"\n- [{formatted_date}](foreign-lang/jp/{file})\n"
+                      if formatted_date not in existing_jp_links:  # 중복 체크
+                          jp_links += f"\n- [{formatted_date}](foreign-lang/jp/{file})\n"
                       
               en_links = ""
               for file in sorted(en_files, reverse=True):
                   date = os.path.splitext(os.path.basename(file))[0]
                   if re.match(r'^\d{8}$', date):
                       formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
-                      en_links += f"\n- [{formatted_date}](foreign-lang/en/{file})\n"
+                      if formatted_date not in existing_en_links:  # 중복 체크
+                          en_links += f"\n- [{formatted_date}](foreign-lang/en/{file})\n"
               
-              # 각 섹션 업데이트
+              # 각 섹션 업데이트 (기존 내용 유지)
               updated_sections = []
               for section in sections:
                   if section.startswith('Japanese'):
-                      # 기존 링크 제거 후 새 링크 추가
-                      section = re.sub(r'\n- \[.*?\].*?\n', '\n', section)
-                      updated_sections.append(f"Japanese{jp_links}\n{section[8:]}")
+                      updated_sections.append(f"Japanese{jp_links}{section[8:]}")
                   elif section.startswith('English'):
-                      # 기존 링크 제거 후 새 링크 추가
-                      section = re.sub(r'\n- \[.*?\].*?\n', '\n', section)
-                      updated_sections.append(f"English{en_links}\n{section[7:]}")
+                      updated_sections.append(f"English{en_links}{section[7:]}")
                   else:
                       updated_sections.append(section)
               
@@ -132,22 +142,23 @@ jobs:
                   f.write(updated_content)
 
           def update_readme():
-              if not os.path.exists('README.md'):
+              readme_path = os.path.join(os.getcwd(), 'README.md')
+              if not os.path.exists(readme_path):
                   return
                   
-              with open('README.md', 'r', encoding='utf-8') as f:
+              with open(readme_path, 'r', encoding='utf-8') as f:
                   content = f.read()
                   
               current_time = get_korean_time()
               time_update = f"\n#### Last updated: {current_time}\n"
               
               # 기존의 Last updated 라인이 있다면 제거
-              content = re.sub(r'\n#### Last updated:.*?\n', '\n', content)
+              content = re.sub(r'\n#### Last updated:.*?(?=\n|$)', '', content, flags=re.DOTALL)
               
               # 파일 끝에 새로운 업데이트 시간 추가
               updated_content = content.rstrip() + time_update
               
-              with open('README.md', 'w', encoding='utf-8') as f:
+              with open(readme_path, 'w', encoding='utf-8') as f:
                   f.write(updated_content)
 
           # 각 폴더의 마크다운 파일 수집
