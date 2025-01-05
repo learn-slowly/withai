@@ -142,7 +142,7 @@ jobs:
                   f.write(updated_content)
 
           def update_readme():
-              readme_path = os.path.join(os.getcwd(), 'README.md')
+              readme_path = 'README.md'
               if not os.path.exists(readme_path):
                   return
                   
@@ -153,7 +153,7 @@ jobs:
               time_update = f"\n#### Last updated: {current_time}\n"
               
               # 기존의 Last updated 라인이 있다면 제거
-              content = re.sub(r'\n#### Last updated:.*?(?=\n|$)', '', content, flags=re.DOTALL)
+              content = re.sub(r'\n#### Last updated:.*?\n', '', content, flags=re.MULTILINE)
               
               # 파일 끝에 새로운 업데이트 시간 추가
               updated_content = content.rstrip() + time_update
