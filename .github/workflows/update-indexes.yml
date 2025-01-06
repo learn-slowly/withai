@@ -38,7 +38,6 @@ jobs:
         from datetime import datetime
         import pytz
         import re
-        import glob
         
         def get_korean_time():
             kst = pytz.timezone('Asia/Seoul')
@@ -46,107 +45,88 @@ jobs:
             return now.strftime('%Y-%m-%d %H:%M:%S')
             
         def is_date_format(filename):
-            # 20250101.md 형식인지 확인
             pattern = r'^\d{8}\.md$'
             return bool(re.match(pattern, filename))
             
+        def get_date_files(folder_path):
+            if not os.path.exists(folder_path):
+                return []
+            return sorted([f for f in os.listdir(folder_path) if is_date_format(f)], reverse=True)
+            
         def update_index_file(index_path, folder_path, is_foreign_lang=False):
-            print(f"Checking {index_path} for updates...")
+            print(f"Processing {index_path}...")
             
             if not os.path.exists(index_path):
                 print(f"Warning: {index_path} does not exist")
-                return
+                return False
                 
             with open(index_path, 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-            
-            new_lines = []
+                content = f.read()
+                
+            new_content = []
             updated = False
-            existing_dates = set()
+            lines = content.split('\n')
             
             if is_foreign_lang:
-                en_path = os.path.join(folder_path, 'en')
-                jp_path = os.path.join(folder_path, 'jp')
+                en_files = get_date_files(os.path.join(folder_path, 'en'))
+                jp_files = get_date_files(os.path.join(folder_path, 'jp'))
                 
-                in_english = False
-                in_japanese = False
+                in_section = None
+                skip_old_dates = False
                 
                 for line in lines:
                     if line.strip() == '## English':
-                        in_english = True
-                        in_japanese = False
-                        new_lines.append(line)
-                        if os.path.exists(en_path):
-                            en_files = [f for f in os.listdir(en_path) if is_date_format(f)]
-                            en_files.sort(reverse=True)
-                            for f in en_files:
-                                date = f[:8]
-                                formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
-                                if formatted_date not in existing_dates:
-                                    new_lines.append(f"- [{formatted_date}](en/{f})\n")
-                                    existing_dates.add(formatted_date)
-                                    updated = True
+                        in_section = 'en'
+                        skip_old_dates = True
+                        new_content.append(line)
+                        for f in en_files:
+                            date = f"{f[:4]}-{f[4:6]}-{f[6:8]}"
+                            new_content.append(f"- [{date}](en/{f})")
                     elif line.strip() == '## Japanese':
-                        in_english = False
-                        in_japanese = True
-                        new_lines.append(line)
-                        if os.path.exists(jp_path):
-                            jp_files = [f for f in os.listdir(jp_path) if is_date_format(f)]
-                            jp_files.sort(reverse=True)
-                            for f in jp_files:
-                                date = f[:8]
-                                formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
-                                if formatted_date not in existing_dates:
-                                    new_lines.append(f"- [{formatted_date}](jp/{f})\n")
-                                    existing_dates.add(formatted_date)
-                                    updated = True
+                        in_section = 'jp'
+                        skip_old_dates = True
+                        new_content.append(line)
+                        for f in jp_files:
+                            date = f"{f[:4]}-{f[4:6]}-{f[6:8]}"
+                            new_content.append(f"- [{date}](jp/{f})")
                     elif line.startswith('#### Last updated:'):
-                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
+                        new_content.append(f'#### Last updated: {get_korean_time()}')
                         updated = True
-                    elif not (in_english and line.startswith('- 202')) and not (in_japanese and line.startswith('- 202')):
-                        new_lines.append(line)
+                    elif line.startswith('- 20') and skip_old_dates:
+                        continue
+                    else:
+                        new_content.append(line)
+                        skip_old_dates = False
             else:
+                date_files = get_date_files(folder_path)
+                after_title = False
+                skip_old_dates = False
+                
                 for line in lines:
                     if line.startswith('# '):
-                        new_lines.append(line)
-                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
-                        if os.path.exists(folder_path):
-                            files = [f for f in os.listdir(folder_path) if is_date_format(f)]
-                            files.sort(reverse=True)
-                            for f in files:
-                                date = f[:8]
-                                formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
-                                if formatted_date not in existing_dates:
-                                    new_lines.append(f"- [{formatted_date}]({f})\n")
-                                    existing_dates.add(formatted_date)
-                                    updated = True
-                    elif not line.startswith('#### Last updated:') and not line.startswith('- 202'):
-                        new_lines.append(line)
+                        after_title = True
+                        new_content.append(line)
+                    elif after_title and not skip_old_dates:
+                        new_content.append(f'#### Last updated: {get_korean_time()}')
+                        for f in date_files:
+                            date = f"{f[:4]}-{f[4:6]}-{f[6:8]}"
+                            new_content.append(f"- [{date}]({f})")
+                        skip_old_dates = True
+                        updated = True
+                    elif line.startswith('#### Last updated:') or line.startswith('- 20'):
+                        continue
+                    else:
+                        new_content.append(line)
             
             if updated:
-                print(f"Writing updates to {index_path}")
                 with open(index_path, 'w', encoding='utf-8') as f:
-                    f.writelines(new_lines)
+                    f.write('\n'.join(new_content))
                 print(f"Updated {index_path}")
-        
-        # Get changed files first
-        import subprocess
-        result = subprocess.run(['git', 'diff', '--name-only', 'HEAD^', 'HEAD'], 
-                             capture_output=True, text=True)
-        changed_files = result.stdout.splitlines()
-        print("Changed files:", changed_files)
-        
-        # Update indexes based on changes
-        if any(f.startswith('content-production/') for f in changed_files):
-            update_index_file('content-production/index.md', 'content-production')
-        
-        if any(f.startswith('foreign-lang/') for f in changed_files):
-            update_index_file('foreign-lang/index.md', 'foreign-lang', True)
-        
-        if any(f.startswith('webdev/') for f in changed_files):
-            update_index_file('webdev/index.md', 'webdev')
+                return True
+            return False
             
-        # Update README.md last
+        # Update README.md first
+        readme_updated = False
         if os.path.exists('README.md'):
             print("Updating README.md")
             with open('README.md', 'r', encoding='utf-8') as f:
@@ -156,22 +136,46 @@ jobs:
             for line in lines:
                 if line.startswith('### Last updated:'):
                     new_lines.append(f'### Last updated: {get_korean_time()}\n')
+                    readme_updated = True
                 else:
                     new_lines.append(line)
             
-            with open('README.md', 'w', encoding='utf-8') as f:
-                f.writelines(new_lines)
-            print("Updated README.md")
+            if readme_updated:
+                with open('README.md', 'w', encoding='utf-8') as f:
+                    f.writelines(new_lines)
+                print("Updated README.md")
+        
+        # Get changed files and update indexes
+        result = subprocess.run(['git', 'diff', '--name-only', 'HEAD^', 'HEAD'], 
+                             capture_output=True, text=True)
+        changed_files = result.stdout.splitlines()
+        print("Changed files:", changed_files)
+        
+        any_updates = readme_updated
+        
+        if any(f.startswith('content-production/') for f in changed_files):
+            any_updates |= update_index_file('content-production/index.md', 'content-production')
+        
+        if any(f.startswith('foreign-lang/') for f in changed_files):
+            any_updates |= update_index_file('foreign-lang/index.md', 'foreign-lang', True)
+        
+        if any(f.startswith('webdev/') for f in changed_files):
+            any_updates |= update_index_file('webdev/index.md', 'webdev')
+            
+        # Exit with status code
+        exit(0 if any_updates else 1)
         EOF
 
     - name: Commit changes
+      if: $? == 0
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add -A
-        git diff --quiet && git diff --staged --quiet || git commit -m "Update indexes"
+        git commit -m "Update indexes"
         
     - name: Push changes
+      if: $? == 0
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
