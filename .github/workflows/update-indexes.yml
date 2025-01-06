@@ -106,19 +106,17 @@ jobs:
                 lines = f.readlines()
             
             new_lines = []
-            readme_updated = False
             for line in lines:
                 if '### Last updated:' in line:
                     new_lines.append(f'### Last updated: {get_korean_time()}\n')
-                    readme_updated = True
                 else:
                     new_lines.append(line)
             
-            if readme_updated:
-                with open('README.md', 'w', encoding='utf-8') as f:
-                    f.writelines(new_lines)
-                print("Updated README.md")
-                any_updates = True
+            # Always write the file and set any_updates to True
+            with open('README.md', 'w', encoding='utf-8') as f:
+                f.writelines(new_lines)
+            print("Updated README.md")
+            any_updates = True
         
         # Exit with status code
         exit(0 if any_updates else 1)
