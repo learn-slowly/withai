@@ -109,7 +109,12 @@ jobs:
             new_lines = []
             for line in lines:
                 if 'Last updated:' in line:
-                    new_lines.append(f'#### Last updated: {get_korean_time()}\n')
+                    if line.startswith('####'):
+                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
+                    elif line.startswith('####'):
+                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
+                    else:
+                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
                 else:
                     new_lines.append(line)
             
