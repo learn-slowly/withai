@@ -39,6 +39,7 @@ jobs:
             
         def update_index_file(index_path, folder_path, is_foreign_lang=False):
             if not os.path.exists(index_path):
+                print(f"Warning: {index_path} does not exist")
                 return
                 
             with open(index_path, 'r', encoding='utf-8') as f:
@@ -47,13 +48,22 @@ jobs:
             # 날짜 형식의 새 파일 찾기
             new_files = []
             if is_foreign_lang:
-                en_files = [f for f in os.listdir(os.path.join(folder_path, 'en')) 
-                           if f.endswith('.md') and f[0].isdigit()]
-                jp_files = [f for f in os.listdir(os.path.join(folder_path, 'jp')) 
-                           if f.endswith('.md') and f[0].isdigit()]
+                en_path = os.path.join(folder_path, 'en')
+                jp_path = os.path.join(folder_path, 'jp')
+                
+                en_files = []
+                jp_files = []
+                
+                if os.path.exists(en_path):
+                    en_files = [f for f in os.listdir(en_path) 
+                              if f.endswith('.md') and f[0].isdigit()]
+                if os.path.exists(jp_path):
+                    jp_files = [f for f in os.listdir(jp_path) 
+                              if f.endswith('.md') and f[0].isdigit()]
             else:
-                new_files = [f for f in os.listdir(folder_path) 
-                           if f.endswith('.md') and f[0].isdigit()]
+                if os.path.exists(folder_path):
+                    new_files = [f for f in os.listdir(folder_path) 
+                               if f.endswith('.md') and f[0].isdigit()]
             
             if not new_files and not (is_foreign_lang and (en_files or jp_files)):
                 return
@@ -66,7 +76,7 @@ jobs:
                 in_japanese = False
                 
                 for line in lines:
-                    if line.startswith('## English'):
+                    if line.strip() == '## English':
                         in_english = True
                         in_japanese = False
                         new_lines.append(line)
@@ -75,7 +85,8 @@ jobs:
                                 date = f[:8]
                                 formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
                                 new_lines.append(f"- [{formatted_date}](en/{f})\n")
-                    elif line.startswith('## Japanese'):
+                            updated = True
+                    elif line.strip() == '## Japanese':
                         in_english = False
                         in_japanese = True
                         new_lines.append(line)
@@ -84,10 +95,11 @@ jobs:
                                 date = f[:8]
                                 formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
                                 new_lines.append(f"- [{formatted_date}](jp/{f})\n")
+                            updated = True
                     elif line.startswith('#### Last updated:'):
                         new_lines.append(f'#### Last updated: {get_korean_time()}\n')
                         updated = True
-                    else:
+                    elif not (in_english and line.startswith('- 202')) and not (in_japanese and line.startswith('- 202')):
                         new_lines.append(line)
             else:
                 for line in lines:
@@ -105,6 +117,7 @@ jobs:
             if updated:
                 with open(index_path, 'w', encoding='utf-8') as f:
                     f.writelines(new_lines)
+                print(f"Updated {index_path}")
         
         # Check each directory for changes
         if os.environ.get('GITHUB_EVENT_PATH'):
@@ -112,8 +125,12 @@ jobs:
             with open(os.environ['GITHUB_EVENT_PATH']) as f:
                 event = json.load(f)
                 
-            changed_files = [file['filename'] for file in event.get('commits', [{}])[0].get('modified', [])]
-            changed_files.extend(file['filename'] for file in event.get('commits', [{}])[0].get('added', []))
+            changed_files = []
+            for commit in event.get('commits', []):
+                changed_files.extend(commit.get('modified', []))
+                changed_files.extend(commit.get('added', []))
+            
+            print("Changed files:", changed_files)
             
             # Update only relevant index.md files
             if any(f.startswith('content-production/') for f in changed_files):
@@ -125,19 +142,21 @@ jobs:
             if any(f.startswith('webdev/') for f in changed_files):
                 update_index_file('webdev/index.md', 'webdev')
             
-            # Always update README.md
-            with open('README.md', 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-            
-            new_lines = []
-            for line in lines:
-                if line.startswith('### Last updated:'):
-                    new_lines.append(f'### Last updated: {get_korean_time()}\n')
-                else:
-                    new_lines.append(line)
-            
-            with open('README.md', 'w', encoding='utf-8') as f:
-                f.writelines(new_lines)
+            # Update README.md if it exists
+            if os.path.exists('README.md'):
+                with open('README.md', 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                
+                new_lines = []
+                for line in lines:
+                    if line.startswith('### Last updated:'):
+                        new_lines.append(f'### Last updated: {get_korean_time()}\n')
+                    else:
+                        new_lines.append(line)
+                
+                with open('README.md', 'w', encoding='utf-8') as f:
+                    f.writelines(new_lines)
+                print("Updated README.md")
         EOF
 
     - name: Commit changes
