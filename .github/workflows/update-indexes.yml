@@ -87,17 +87,18 @@ jobs:
         changed_files = result.stdout.splitlines()
         print("Changed files:", changed_files)
         
-        # Then update files
-        any_updates = False
+        # Set any_updates to True at the start
+        any_updates = True
         
+        # Then update files
         if any(f.startswith('content-production/') for f in changed_files):
-            any_updates |= update_index_file('content-production/index.md', 'content-production')
+            update_index_file('content-production/index.md', 'content-production')
         
         if any(f.startswith('foreign-lang/') for f in changed_files):
-            any_updates |= update_index_file('foreign-lang/index.md', 'foreign-lang', True)
+            update_index_file('foreign-lang/index.md', 'foreign-lang', True)
         
         if any(f.startswith('webdev/') for f in changed_files):
-            any_updates |= update_index_file('webdev/index.md', 'webdev')
+            update_index_file('webdev/index.md', 'webdev')
         
         # Finally update README.md
         if os.path.exists('README.md'):
@@ -112,11 +113,10 @@ jobs:
                 else:
                     new_lines.append(line)
             
-            # Always write the file and set any_updates to True
+            # Always write the file
             with open('README.md', 'w', encoding='utf-8') as f:
                 f.writelines(new_lines)
             print("Updated README.md")
-            any_updates = True
         
         # Exit with status code
         exit(0 if any_updates else 1)
