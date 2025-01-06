@@ -53,39 +53,15 @@ jobs:
                 
             with open(index_path, 'r', encoding='utf-8') as f:
                 lines = f.readlines()
-                
-            # 날짜 형식의 새 파일 찾기
-            new_files = []
+            
+            new_lines = []
+            updated = False
+            existing_dates = set()  # 중복 방지를 위한 set
+            
             if is_foreign_lang:
                 en_path = os.path.join(folder_path, 'en')
                 jp_path = os.path.join(folder_path, 'jp')
                 
-                en_files = []
-                jp_files = []
-                
-                if os.path.exists(en_path):
-                    en_files = glob.glob(os.path.join(en_path, '[0-9]*.md'))
-                    en_files = [os.path.basename(f) for f in en_files]
-                    print(f"Found English files: {en_files}")
-                    
-                if os.path.exists(jp_path):
-                    jp_files = glob.glob(os.path.join(jp_path, '[0-9]*.md'))
-                    jp_files = [os.path.basename(f) for f in jp_files]
-                    print(f"Found Japanese files: {jp_files}")
-            else:
-                if os.path.exists(folder_path):
-                    new_files = glob.glob(os.path.join(folder_path, '[0-9]*.md'))
-                    new_files = [os.path.basename(f) for f in new_files]
-                    print(f"Found files in {folder_path}: {new_files}")
-            
-            if not new_files and not (is_foreign_lang and (en_files or jp_files)):
-                print("No new files found to update")
-                return
-                
-            updated = False
-            new_lines = []
-            
-            if is_foreign_lang:
                 in_english = False
                 in_japanese = False
                 
@@ -94,22 +70,30 @@ jobs:
                         in_english = True
                         in_japanese = False
                         new_lines.append(line)
-                        if en_files:
-                            for f in sorted(en_files, reverse=True):
-                                date = f[:8]
+                        if os.path.exists(en_path):
+                            en_files = sorted(glob.glob(os.path.join(en_path, '[0-9]*.md')), reverse=True)
+                            for f in en_files:
+                                basename = os.path.basename(f)
+                                date = basename[:8]
                                 formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
-                                new_lines.append(f"- [{formatted_date}](en/{f})\n")
-                            updated = True
+                                if formatted_date not in existing_dates:
+                                    new_lines.append(f"- [{formatted_date}](en/{basename})\n")
+                                    existing_dates.add(formatted_date)
+                                    updated = True
                     elif line.strip() == '## Japanese':
                         in_english = False
                         in_japanese = True
                         new_lines.append(line)
-                        if jp_files:
-                            for f in sorted(jp_files, reverse=True):
-                                date = f[:8]
+                        if os.path.exists(jp_path):
+                            jp_files = sorted(glob.glob(os.path.join(jp_path, '[0-9]*.md')), reverse=True)
+                            for f in jp_files:
+                                basename = os.path.basename(f)
+                                date = basename[:8]
                                 formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
-                                new_lines.append(f"- [{formatted_date}](jp/{f})\n")
-                            updated = True
+                                if formatted_date not in existing_dates:
+                                    new_lines.append(f"- [{formatted_date}](jp/{basename})\n")
+                                    existing_dates.add(formatted_date)
+                                    updated = True
                     elif line.startswith('#### Last updated:'):
                         new_lines.append(f'#### Last updated: {get_korean_time()}\n')
                         updated = True
@@ -120,11 +104,16 @@ jobs:
                     if line.startswith('# '):
                         new_lines.append(line)
                         new_lines.append(f'#### Last updated: {get_korean_time()}\n')
-                        for f in sorted(new_files, reverse=True):
-                            date = f[:8]
-                            formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
-                            new_lines.append(f"- [{formatted_date}]({f})\n")
-                        updated = True
+                        if os.path.exists(folder_path):
+                            files = sorted(glob.glob(os.path.join(folder_path, '[0-9]*.md')), reverse=True)
+                            for f in files:
+                                basename = os.path.basename(f)
+                                date = basename[:8]
+                                formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
+                                if formatted_date not in existing_dates:
+                                    new_lines.append(f"- [{formatted_date}]({basename})\n")
+                                    existing_dates.add(formatted_date)
+                                    updated = True
                     elif not line.startswith('#### Last updated:') and not line.startswith('- 202'):
                         new_lines.append(line)
             
@@ -133,32 +122,8 @@ jobs:
                 with open(index_path, 'w', encoding='utf-8') as f:
                     f.writelines(new_lines)
                 print(f"Updated {index_path}")
-            else:
-                print(f"No updates needed for {index_path}")
-        
-        # Get list of changed files
-        import subprocess
-        
-        def get_changed_files():
-            result = subprocess.run(['git', 'diff', '--name-only', 'HEAD^', 'HEAD'], 
-                                 capture_output=True, text=True)
-            changed = result.stdout.splitlines()
-            print("Changed files from git:", changed)
-            return changed
             
-        changed_files = get_changed_files()
-        
-        # Update relevant index files
-        if any(f.startswith('content-production/') for f in changed_files):
-            update_index_file('content-production/index.md', 'content-production')
-        
-        if any(f.startswith('foreign-lang/') for f in changed_files):
-            update_index_file('foreign-lang/index.md', 'foreign-lang', True)
-        
-        if any(f.startswith('webdev/') for f in changed_files):
-            update_index_file('webdev/index.md', 'webdev')
-        
-        # Always update README.md if it exists
+        # Update README.md
         if os.path.exists('README.md'):
             print("Updating README.md")
             with open('README.md', 'r', encoding='utf-8') as f:
@@ -166,6 +131,7 @@ jobs:
             
             new_lines = []
             updated = False
+            
             for line in lines:
                 if line.startswith('### Last updated:'):
                     new_lines.append(f'### Last updated: {get_korean_time()}\n')
@@ -177,6 +143,22 @@ jobs:
                 with open('README.md', 'w', encoding='utf-8') as f:
                     f.writelines(new_lines)
                 print("Updated README.md")
+        
+        # Get changed files and update indexes
+        import subprocess
+        result = subprocess.run(['git', 'diff', '--name-only', 'HEAD^', 'HEAD'], 
+                             capture_output=True, text=True)
+        changed_files = result.stdout.splitlines()
+        print("Changed files:", changed_files)
+        
+        if any(f.startswith('content-production/') for f in changed_files):
+            update_index_file('content-production/index.md', 'content-production')
+        
+        if any(f.startswith('foreign-lang/') for f in changed_files):
+            update_index_file('foreign-lang/index.md', 'foreign-lang', True)
+        
+        if any(f.startswith('webdev/') for f in changed_files):
+            update_index_file('webdev/index.md', 'webdev')
         EOF
 
     - name: Commit changes

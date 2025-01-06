@@ -3,7 +3,7 @@
 
 ## 뭐를 하냐?
 - [컨텐츠 제작 학습](content-production)
-- [웹 개발 학습](webdev)
+- [웹 개발 학습](Idea.md)
 - [외국어 공부](foreign-lang)
 
 ## 왜 하냐?
