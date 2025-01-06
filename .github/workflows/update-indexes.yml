@@ -2,20 +2,24 @@ name: Update Indexes
 
 on:
   push:
+    branches: 
+      - main
     paths:
-      - 'content-production/**'
-      - 'foreign-lang/**'
-      - 'webdev/**'
-    branches: [ main ]
+      - 'content-production/**/*.md'
+      - 'foreign-lang/**/*.md'
+      - 'webdev/**/*.md'
+      - '.github/workflows/update-indexes.yml'
 
 jobs:
   update-indexes:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
     - uses: actions/checkout@v3
       with:
-        fetch-depth: 2
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v3
