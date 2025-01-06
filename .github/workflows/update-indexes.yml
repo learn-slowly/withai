@@ -32,6 +32,7 @@ jobs:
         pip install pytz
 
     - name: Update indexes
+      id: update
       run: |
         python3 - <<EOF
         import os
@@ -166,8 +167,13 @@ jobs:
         exit(0 if any_updates else 1)
         EOF
 
+    - name: Check for changes
+      id: changes
+      run: |
+        git diff --quiet || echo "::set-output name=changed::true"
+
     - name: Commit changes
-      if: $? == 0
+      if: steps.changes.outputs.changed == 'true'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
@@ -175,7 +181,7 @@ jobs:
         git commit -m "Update indexes"
         
     - name: Push changes
-      if: $? == 0
+      if: steps.changes.outputs.changed == 'true'
       uses: ad-m/github-push-action@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
