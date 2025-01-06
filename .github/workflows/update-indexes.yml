@@ -104,23 +104,15 @@ jobs:
         if os.path.exists('README.md'):
             print("Updating README.md")
             with open('README.md', 'r', encoding='utf-8') as f:
-                lines = f.readlines()
+                content = f.read()
             
-            new_lines = []
-            for line in lines:
-                if 'Last updated:' in line:
-                    if line.startswith('####'):
-                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
-                    elif line.startswith('####'):
-                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
-                    else:
-                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
-                else:
-                    new_lines.append(line)
+            # 정규식을 사용하여 마지막 Last updated 줄을 찾아 교체
+            pattern = r'#### Last updated: .*?\n'
+            new_content = re.sub(pattern, f'#### Last updated: {get_korean_time()}\n', content)
             
-            # Always write the file
+            # 파일 쓰기
             with open('README.md', 'w', encoding='utf-8') as f:
-                f.writelines(new_lines)
+                f.write(new_content)
             print("Updated README.md")
         
         # Exit with status code
