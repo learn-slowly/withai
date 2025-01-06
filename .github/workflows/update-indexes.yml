@@ -122,7 +122,7 @@ jobs:
                 
                 # 새로운 날짜 형식 파일에 대한 링크 추가
                 for md_file in sorted(md_files):
-                    link_path = md_file.replace('\\', '/')
+                    link_path = md_file.replace('\\\\', '/')
                     if link_path not in existing_links:
                         date_str = os.path.basename(md_file)[:8]  # YYYYMMDD 추출
                         formatted_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
