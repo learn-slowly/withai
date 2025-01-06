@@ -2,6 +2,14 @@
 
 ## Source: https://youtu.be/VTs1PgzwKms?si=UP9ZaiijA7UAZmzg
 
+## Table of Contents
+1. [Introduction: Contemporary Anxiety about the Future](#1-introduction-contemporary-anxiety-about-the-future)
+2. [Democracy and Imagination](#2-democracy-and-imagination)
+3. [Value of Life and Grievability](#3-value-of-life-and-grievability)
+4. [Role and Future of Humanities](#4-role-and-future-of-humanities)
+5. [Conclusion: Collective Imagination for a New World](#5-conclusion-collective-imagination-for-a-new-world)
+
+## 1. Introduction: Contemporary Anxiety about the Future
 thank you so much thank you first of all thank you very much uh for being here today um.
 
 Let me start with a quote from edar gisson um. He writes: "thinking thought usually amounts to withdrawing into a dimensionless place in which the idea of thought alone persists but thought in reality spaces itself out into the world it informs the imaginary of peoples their varied Poetics which it then transforms meaning in them its risk is realized."
@@ -22,6 +30,7 @@ All this happens not only inside the mind but in the modes through which fearing
 
 Thus the fundamental questions of the humanities concerning what and how we express a point of view or create a vision of the world is already at work when we ask about the future and try to fathom its possible forms. This is why in my remarks today I will be arguing that the most compelling and urgent questions, the existential questions, require both the arts and the humanities.
 
+## 2. Democracy and Imagination
 Imagining the future is part of what it means to live now, and we cannot easily inhabit the present without a sense that a future is possible and that it will preserve what we value most. In addition, I would suggest that without a way to imagine the future, there can be no democracy. Democracy is that form of rule that is by and for the people. It is the people who come together and decide how best to live with one another. They make the law under which they agree to live, and they seek through debate to produce an abiding understanding of what it means to live together.
 
 There are, as you know, various freedoms exercised under conditions of democratic self-rule. People are free to assemble and to move, to express their views and to affiliate with political groups. By the way, all this is lost under martial law - we can talk about that. But the people are not, as it were, this or that political group or a specific organization or even a party. The people have various affiliations and they assemble in different places and for different purposes, espousing conflicting viewpoints, seeking to gain support for their vision of the world.
@@ -44,6 +53,7 @@ this is the account offered by the philosopher Hanah ared in these moments of fo
 
 what I've been describing is an anarchic act of founding that posits law as well as the means by which law can be reproduced and preserved or for that matter repealed and withdrawn perhaps it sounds like I'm speaking of an ideal time or that I am imagining without time and space this founding moment of law one upon which both valter Benyamin and Ja DEA reflected is not easy to imagine it's an experiment in time and space not exactly an histor iCal period than any that anyone can actually embody or document it's a hypothetical scene it's an imaginary positing sometimes cast as a state of nature.
 
+## 3. Value of Life and Grievability
 So I want to argue that as important as social and economic equality is among humans - and I hope I have made that clear in my remarks - that argument for equality is not sufficient to establish the interdependency of living processes without which climate change cannot be understood or stopped. So there's a shift in perspective that's required to consider the living world itself as grievable. The human can no longer serve as the center for such a task.
 
 In these times when war, climate catastrophe, the rise of authoritarianism, and the decimation of social goods by capitalist regimes exposes our frailty and interdependency as living creatures, we need what powers we have to shape community and to expand practices of care and solidarity beyond the strictly domestic and national spheres.
@@ -142,11 +152,13 @@ we can no longer look away from the quotidian ways that white supremacy militari
 
 opposing violence and discrimination against women trans and queer people rebuilding as well our infrastructures so that those physically challenged are full participants and to think equality beyond the boxes that are checked and talled diversity and inclusion are indispensable but they will never quite name our Utopia we are in search of those names.
 
+## 4. Role and Future of Humanities
 so finally then for those of us who work in the humanities it has never been more important to learn how to show how important the humanities are for understanding the world in which we live for making sound judgments interpreting words and deeds the promises of leaders their lies for imag ining ways to live together that manifest the very ideals of equality freedom and Justice we wish to make manifest in the world.
 
 both public and private institutions would do well to help us now think through the fundamental questions of persistence and loss of living on in keeping company with those who have passed to help us understand what connects and divides humans across human communities and environments languages and regions and what role collaborative and critical imagination has during times in which crisis and Futurity are clearly the issues.
 
 we teach language and translation literary form and technique but what if we are as we do this also developing together a Poetics for the living a technique for persisting that does not Den deny the loss the history of violence and the recurrent error but moves through and with all of them to establish a more truthful transformation one that moves us to move others toward that goal.
 
+## 5. Conclusion: Collective Imagination for a New World
 so often in a literature class we open a novel or we start to read a poem and the first question is where are we who is speaking in other words we begin with a disorientation where am I is there a century here um is there is there a region in the world and that disorientation allows us to reimagine the world a new we interrogate and leave the SpaceTime of that fictional world only to return with that other world Illuminating our own the Poetics of Life the techniques for living that emerge from our collaborating worlds give us the value of language and life in their vital intersection as something that happens in relations what gisson called a poet Poetics of relation the Poetics of relation for our time A Time ripped up and divided against itself is not only to make the value of the humanities known to a wider public but to answer the call emerging from so many publics for a collaborative imagining for we can hear those questions as a public cry and demand where are we who is speaking who longs to know that they exist who cries in a language the rest of us have yet to to learn thank you very much 
 
