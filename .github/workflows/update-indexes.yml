@@ -37,12 +37,18 @@ jobs:
         import os
         from datetime import datetime
         import pytz
+        import re
         import glob
         
         def get_korean_time():
             kst = pytz.timezone('Asia/Seoul')
             now = datetime.now(kst)
             return now.strftime('%Y-%m-%d %H:%M:%S')
+            
+        def is_date_format(filename):
+            # 20250101.md 형식인지 확인
+            pattern = r'^\d{8}\.md$'
+            return bool(re.match(pattern, filename))
             
         def update_index_file(index_path, folder_path, is_foreign_lang=False):
             print(f"Checking {index_path} for updates...")
@@ -56,7 +62,7 @@ jobs:
             
             new_lines = []
             updated = False
-            existing_dates = set()  # 중복 방지를 위한 set
+            existing_dates = set()
             
             if is_foreign_lang:
                 en_path = os.path.join(folder_path, 'en')
@@ -71,13 +77,13 @@ jobs:
                         in_japanese = False
                         new_lines.append(line)
                         if os.path.exists(en_path):
-                            en_files = sorted(glob.glob(os.path.join(en_path, '[0-9]*.md')), reverse=True)
+                            en_files = [f for f in os.listdir(en_path) if is_date_format(f)]
+                            en_files.sort(reverse=True)
                             for f in en_files:
-                                basename = os.path.basename(f)
-                                date = basename[:8]
+                                date = f[:8]
                                 formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
                                 if formatted_date not in existing_dates:
-                                    new_lines.append(f"- [{formatted_date}](en/{basename})\n")
+                                    new_lines.append(f"- [{formatted_date}](en/{f})\n")
                                     existing_dates.add(formatted_date)
                                     updated = True
                     elif line.strip() == '## Japanese':
@@ -85,13 +91,13 @@ jobs:
                         in_japanese = True
                         new_lines.append(line)
                         if os.path.exists(jp_path):
-                            jp_files = sorted(glob.glob(os.path.join(jp_path, '[0-9]*.md')), reverse=True)
+                            jp_files = [f for f in os.listdir(jp_path) if is_date_format(f)]
+                            jp_files.sort(reverse=True)
                             for f in jp_files:
-                                basename = os.path.basename(f)
-                                date = basename[:8]
+                                date = f[:8]
                                 formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
                                 if formatted_date not in existing_dates:
-                                    new_lines.append(f"- [{formatted_date}](jp/{basename})\n")
+                                    new_lines.append(f"- [{formatted_date}](jp/{f})\n")
                                     existing_dates.add(formatted_date)
                                     updated = True
                     elif line.startswith('#### Last updated:'):
@@ -105,13 +111,13 @@ jobs:
                         new_lines.append(line)
                         new_lines.append(f'#### Last updated: {get_korean_time()}\n')
                         if os.path.exists(folder_path):
-                            files = sorted(glob.glob(os.path.join(folder_path, '[0-9]*.md')), reverse=True)
+                            files = [f for f in os.listdir(folder_path) if is_date_format(f)]
+                            files.sort(reverse=True)
                             for f in files:
-                                basename = os.path.basename(f)
-                                date = basename[:8]
+                                date = f[:8]
                                 formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
                                 if formatted_date not in existing_dates:
-                                    new_lines.append(f"- [{formatted_date}]({basename})\n")
+                                    new_lines.append(f"- [{formatted_date}]({f})\n")
                                     existing_dates.add(formatted_date)
                                     updated = True
                     elif not line.startswith('#### Last updated:') and not line.startswith('- 202'):
@@ -122,35 +128,15 @@ jobs:
                 with open(index_path, 'w', encoding='utf-8') as f:
                     f.writelines(new_lines)
                 print(f"Updated {index_path}")
-            
-        # Update README.md
-        if os.path.exists('README.md'):
-            print("Updating README.md")
-            with open('README.md', 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-            
-            new_lines = []
-            updated = False
-            
-            for line in lines:
-                if line.startswith('### Last updated:'):
-                    new_lines.append(f'### Last updated: {get_korean_time()}\n')
-                    updated = True
-                else:
-                    new_lines.append(line)
-            
-            if updated:
-                with open('README.md', 'w', encoding='utf-8') as f:
-                    f.writelines(new_lines)
-                print("Updated README.md")
         
-        # Get changed files and update indexes
+        # Get changed files first
         import subprocess
         result = subprocess.run(['git', 'diff', '--name-only', 'HEAD^', 'HEAD'], 
                              capture_output=True, text=True)
         changed_files = result.stdout.splitlines()
         print("Changed files:", changed_files)
         
+        # Update indexes based on changes
         if any(f.startswith('content-production/') for f in changed_files):
             update_index_file('content-production/index.md', 'content-production')
         
@@ -159,6 +145,23 @@ jobs:
         
         if any(f.startswith('webdev/') for f in changed_files):
             update_index_file('webdev/index.md', 'webdev')
+            
+        # Update README.md last
+        if os.path.exists('README.md'):
+            print("Updating README.md")
+            with open('README.md', 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            
+            new_lines = []
+            for line in lines:
+                if line.startswith('### Last updated:'):
+                    new_lines.append(f'### Last updated: {get_korean_time()}\n')
+                else:
+                    new_lines.append(line)
+            
+            with open('README.md', 'w', encoding='utf-8') as f:
+                f.writelines(new_lines)
+            print("Updated README.md")
         EOF
 
     - name: Commit changes

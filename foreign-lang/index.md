@@ -9,12 +9,6 @@
 ## English
 - [2025-01-06](en/20250106.md)
 - [2025-01-05](en/20250105.md)
-- [2025-01-06](en/20250106.md)
-- [2025-01-06](en/20250106-script.md)
-- [2025-01-05](en/20250105.md)
-- [2025-01-05](en/20250105-script.md)
-
-- [2025-01-05](en/20250105.md)
 
 - 혹시 개발자를 위한 영어 궁금하면 [여기](https://www.freecodecamp.org/learn/a2-english-for-developers/)라도...
 - claude가 추천하는 [영어학습가이드](en/english-learning-guide.md)
@@ -22,8 +16,6 @@
 - 내가 진행할 영어학습 [PRD](en/en-studyprd.md)
 
 ## Japanese
-- [2025-01-05](jp/20250105.md)
-
 - [2025-01-05](jp/20250105.md)
 
 - [히라가나](jp/hiragana-guide.md)
