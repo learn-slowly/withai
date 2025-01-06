@@ -159,9 +159,10 @@
 3. [주제2](#topic-2)
 4. [주제3](#topic-3)
 5. [Solutions](#solutions)
-6. [Writing Practice](#writing-practice)
-7. [Writing Analysis](#writing-analysis)
-8. [Dialogue Practice](#dialogue-practice)
+6. [Dialogue Practice](#dialogue-practice)
+7. [Writing Practice](#writing-practice)
+8. [Writing Analysis](#writing-analysis)
+
 
 ### 각 섹션 템플릿
 
@@ -217,6 +218,26 @@ B: [응답/설명]
 A: [후속 질문]
 B: [후속 응답]
 
+#### Dialogue Practice
+## Dialogue Practice
+
+### [주제1]
+Q: [질문]
+A: [모범 답변]
+
+Q: [후속 질문]
+A: [모범 답변]
+
+### [주제2]
+Q: [질문]
+A: [모범 답변]
+
+Q: [후속 질문]
+A: [모범 답변]
+
+[추가 주제들...]
+
+
 #### Writing Practice
 ## Writing Practice
 ### Writing Practice Questions
@@ -246,22 +267,4 @@ B: [후속 응답]
 4. [수정된 문장4]
 5. [수정된 문장5]
 
-#### Dialogue Practice
-## Dialogue Practice
-
-### [주제1]
-Q: [질문]
-A: [모범 답변]
-
-Q: [후속 질문]
-A: [모범 답변]
-
-### [주제2]
-Q: [질문]
-A: [모범 답변]
-
-Q: [후속 질문]
-A: [모범 답변]
-
-[추가 주제들...]
 

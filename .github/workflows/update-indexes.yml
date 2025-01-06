@@ -39,20 +39,12 @@ jobs:
         from datetime import datetime
         import pytz
         import re
+        import subprocess
         
         def get_korean_time():
             kst = pytz.timezone('Asia/Seoul')
             now = datetime.now(kst)
             return now.strftime('%Y-%m-%d %H:%M:%S')
-            
-        def is_date_format(filename):
-            pattern = r'^\d{8}\.md$'
-            return bool(re.match(pattern, filename))
-            
-        def get_date_files(folder_path):
-            if not os.path.exists(folder_path):
-                return []
-            return sorted([f for f in os.listdir(folder_path) if is_date_format(f)], reverse=True)
             
         def update_index_file(index_path, folder_path, is_foreign_lang=False):
             print(f"Processing {index_path}...")
@@ -62,97 +54,41 @@ jobs:
                 return False
                 
             with open(index_path, 'r', encoding='utf-8') as f:
-                content = f.read()
+                lines = f.readlines()
                 
-            new_content = []
+            new_lines = []
             updated = False
-            lines = content.split('\n')
             
             if is_foreign_lang:
-                en_files = get_date_files(os.path.join(folder_path, 'en'))
-                jp_files = get_date_files(os.path.join(folder_path, 'jp'))
-                
-                in_section = None
-                skip_old_dates = False
-                
                 for line in lines:
-                    if line.strip() == '## English':
-                        in_section = 'en'
-                        skip_old_dates = True
-                        new_content.append(line)
-                        for f in en_files:
-                            date = f"{f[:4]}-{f[4:6]}-{f[6:8]}"
-                            new_content.append(f"- [{date}](en/{f})")
-                    elif line.strip() == '## Japanese':
-                        in_section = 'jp'
-                        skip_old_dates = True
-                        new_content.append(line)
-                        for f in jp_files:
-                            date = f"{f[:4]}-{f[4:6]}-{f[6:8]}"
-                            new_content.append(f"- [{date}](jp/{f})")
-                    elif line.startswith('#### Last updated:'):
-                        new_content.append(f'#### Last updated: {get_korean_time()}')
+                    if '#### Last updated:' in line:
+                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
                         updated = True
-                    elif line.startswith('- 20') and skip_old_dates:
-                        continue
                     else:
-                        new_content.append(line)
-                        skip_old_dates = False
+                        new_lines.append(line)
             else:
-                date_files = get_date_files(folder_path)
-                after_title = False
-                skip_old_dates = False
-                
                 for line in lines:
-                    if line.startswith('# '):
-                        after_title = True
-                        new_content.append(line)
-                    elif after_title and not skip_old_dates:
-                        new_content.append(f'#### Last updated: {get_korean_time()}')
-                        for f in date_files:
-                            date = f"{f[:4]}-{f[4:6]}-{f[6:8]}"
-                            new_content.append(f"- [{date}]({f})")
-                        skip_old_dates = True
+                    if '#### Last updated:' in line:
+                        new_lines.append(f'#### Last updated: {get_korean_time()}\n')
                         updated = True
-                    elif line.startswith('#### Last updated:') or line.startswith('- 20'):
-                        continue
                     else:
-                        new_content.append(line)
+                        new_lines.append(line)
             
             if updated:
                 with open(index_path, 'w', encoding='utf-8') as f:
-                    f.write('\n'.join(new_content))
+                    f.writelines(new_lines)
                 print(f"Updated {index_path}")
                 return True
             return False
             
-        # Update README.md first
-        readme_updated = False
-        if os.path.exists('README.md'):
-            print("Updating README.md")
-            with open('README.md', 'r', encoding='utf-8') as f:
-                lines = f.readlines()
-            
-            new_lines = []
-            for line in lines:
-                if line.startswith('### Last updated:'):
-                    new_lines.append(f'### Last updated: {get_korean_time()}\n')
-                    readme_updated = True
-                else:
-                    new_lines.append(line)
-            
-            if readme_updated:
-                with open('README.md', 'w', encoding='utf-8') as f:
-                    f.writelines(new_lines)
-                print("Updated README.md")
-        
-        # Get changed files and update indexes
+        # Get changed files first
         result = subprocess.run(['git', 'diff', '--name-only', 'HEAD^', 'HEAD'], 
                              capture_output=True, text=True)
         changed_files = result.stdout.splitlines()
         print("Changed files:", changed_files)
         
-        any_updates = readme_updated
+        # Then update files
+        any_updates = False
         
         if any(f.startswith('content-production/') for f in changed_files):
             any_updates |= update_index_file('content-production/index.md', 'content-production')
@@ -162,7 +98,28 @@ jobs:
         
         if any(f.startswith('webdev/') for f in changed_files):
             any_updates |= update_index_file('webdev/index.md', 'webdev')
+        
+        # Finally update README.md
+        if os.path.exists('README.md'):
+            print("Updating README.md")
+            with open('README.md', 'r', encoding='utf-8') as f:
+                lines = f.readlines()
             
+            new_lines = []
+            readme_updated = False
+            for line in lines:
+                if '### Last updated:' in line:
+                    new_lines.append(f'### Last updated: {get_korean_time()}\n')
+                    readme_updated = True
+                else:
+                    new_lines.append(line)
+            
+            if readme_updated:
+                with open('README.md', 'w', encoding='utf-8') as f:
+                    f.writelines(new_lines)
+                print("Updated README.md")
+                any_updates = True
+        
         # Exit with status code
         exit(0 if any_updates else 1)
         EOF
