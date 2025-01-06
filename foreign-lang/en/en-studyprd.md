@@ -95,6 +95,48 @@
 - 문맥에 맞는 적절한 어휘 선택 지도
 - 지속적인 격려와 동기부여
 
+### 6. 문장 구조 발전 전략
+#### 단계별 접근법
+1. **기본 단문 작성**
+   - 주어 + 동사 + 목적어 구조 확실히 하기
+   - 한 문장에 하나의 생각만 담기
+   - 예시:
+     ```
+     The CIO tried to arrest the president.
+     The PSS blocked them.
+     This caused a standoff.
+     ```
+
+2. **접속사로 문장 연결**
+   - and, but, so, because 등 기본 접속사 활용
+   - 관련된 두 문장을 자연스럽게 연결
+   - 예시:
+     ```
+     The CIO tried to arrest the president, but the PSS blocked them.
+     This caused a standoff.
+     ```
+
+3. **관계사로 정보 추가**
+   - which, that, who 등을 활용해 부가 정보 삽입
+   - 문장의 자연스러운 확장
+   - 예시:
+     ```
+     The CIO, which is a special investigation team, tried to arrest the president, but the PSS blocked them, which led to a five-hour standoff.
+     ```
+
+#### 주의사항
+1. 처음부터 복잡한 문장 시도하지 않기
+2. 불확실한 문법 구조는 사용하지 않기
+3. 번역기에 의존하지 않기
+4. 문장 확장 시 기본 문법 규칙 준수하기
+
+#### 발전 순서
+1. 기본 문장 구조 완성
+2. 문법적 정확성 확인
+3. 접속사로 문장 연결
+4. 관계사로 정보 추가
+5. 자연스러운 문장 흐름 확인
+
 ## 6. 학습 템플릿
 
 ### 문서 기본 구조
