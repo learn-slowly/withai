@@ -46,15 +46,28 @@ jobs:
             now = datetime.now(kst)
             return now.strftime('%Y-%m-%d %H:%M:%S')
             
-        def update_index_file(index_path, folder_path, is_foreign_lang=False):
+        def update_regular_index(index_path, folder_path):
             print(f"Processing {index_path}...")
             
             if not os.path.exists(index_path):
                 print(f"Warning: {index_path} does not exist")
                 return False
-                
+            
+            # 변경된 파일과 새로 추가된 파일 모두 확인
+            result = subprocess.run(['git', 'diff', '--name-only', '--diff-filter=d', 'HEAD^', 'HEAD'], 
+                                capture_output=True, text=True)
+            changed_files = result.stdout.splitlines()
+            
+            # 날짜 형식 파일만 필터링
+            date_files = [f for f in changed_files if f.startswith(f'{folder_path}/') 
+                        and re.match(rf'{folder_path}/\d{{8}}\.md$', f)]
+            
+            if not date_files:
+                return False
+            
             with open(index_path, 'r', encoding='utf-8') as f:
                 content = f.read()
+                lines = content.splitlines(True)  # Keep line endings
             
             # H1 태그 찾기
             h1_match = re.search(r'^# .*$', content, re.MULTILINE)
@@ -62,122 +75,167 @@ jobs:
                 print(f"Warning: No H1 header found in {index_path}")
                 return False
             
-            h1_pos = h1_match.end()
+            # 기존 링크 수집
+            existing_links = set()
+            for line in lines:
+                if line.strip().startswith('- ['):
+                    match = re.search(r'\((.+?)\)', line)
+                    if match:
+                        existing_links.add(match.group(1))
             
-            # Last updated 섹션 업데이트 또는 추가
-            last_updated = f"\n#### Last updated: {get_korean_time()}\n"
-            if '#### Last updated:' in content:
-                content = re.sub(r'#### Last updated:.*\n', last_updated, content)
-            else:
-                # H1 바로 다음에 Last updated 추가
-                content = content[:h1_pos] + last_updated + content[h1_pos:]
+            new_lines = []
+            after_h1 = False
+            updated = False
+            last_updated_added = False
             
-            if is_foreign_lang:
-                # foreign-lang 폴더 특별 처리
-                for section, folder in [('## English', 'en'), ('## Japanese', 'jp')]:
-                    section_match = re.search(f'{section}.*?\n', content)
-                    if section_match:
-                        section_pos = section_match.end()
-                        
-                        # 해당 언어 폴더의 파일들 수집
-                        md_files = []
-                        target_folder = os.path.join(folder_path, folder)
-                        if os.path.exists(target_folder):
-                            for file in os.listdir(target_folder):
-                                if re.match(r'^\d{8}\.md$', file):
-                                    date_str = file[:8]
-                                    formatted_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
-                                    link_path = f"{folder}/{file}"
-                                    if f"]({link_path})" not in content:  # 중복 체크
-                                        md_files.append((formatted_date, link_path))
-                        
-                        # 정렬된 링크 추가
-                        for date, link in sorted(md_files):
-                            content = content[:section_pos] + f"- [{date}]({link})\n" + content[section_pos:]
-            else:
-                # 일반 폴더 처리
-                # 폴더 내의 날짜 형식 .md 파일만 수집 (index.md 제외)
-                md_files = []
-                for root, _, files in os.walk(folder_path):
-                    for file in files:
-                        # 날짜 형식 (YYYYMMDD.md) 검사
-                        if file.endswith('.md') and file != 'index.md' and re.match(r'^\d{8}\.md$', file):
-                            relative_path = os.path.relpath(os.path.join(root, file), folder_path)
-                            md_files.append(relative_path)
-                
-                with open(index_path, 'r', encoding='utf-8') as f:
-                    lines = f.readlines()
-                
-                new_lines = []
-                existing_links = set()
-                updated = False
-                
-                # 기존 링크 수집
-                for line in lines:
-                    if line.startswith('- ['):
-                        link_match = re.search(r'\((.*?)\)', line)
-                        if link_match:
-                            existing_links.add(link_match.group(1))
+            for line in lines:
+                if line.startswith('# '):
                     new_lines.append(line)
+                    after_h1 = True
+                    continue
                 
-                # 새로운 날짜 형식 파일에 대한 링크 추가
-                for md_file in sorted(md_files):
-                    link_path = md_file.replace('\\\\', '/')
-                    if link_path not in existing_links:
-                        date_str = os.path.basename(md_file)[:8]  # YYYYMMDD 추출
-                        formatted_date = f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}"
-                        new_lines.append(f'- [{formatted_date}]({link_path})\n')
-                        updated = True
+                if after_h1 and not last_updated_added:
+                    new_lines.append(f'#### Last updated: {get_korean_time()}\n')
+                    # 새 파일 추가 (중복 체크)
+                    for file in sorted(date_files):
+                        relative_path = os.path.basename(file)
+                        if relative_path not in existing_links:
+                            date = re.search(r'(\d{8})\.md$', file).group(1)
+                            formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+                            new_lines.append(f'- [{formatted_date}]({relative_path})\n')
+                            existing_links.add(relative_path)
+                            updated = True
+                    after_h1 = False
+                    last_updated_added = True
+                    continue
                 
-                if updated:
-                    with open(index_path, 'w', encoding='utf-8') as f:
-                        f.writelines(new_lines)
-                    print(f"Updated {index_path}")
-                    return True
+                if not line.startswith('#### Last updated:'):
+                    new_lines.append(line)
+            
+            if updated:
+                with open(index_path, 'w', encoding='utf-8') as f:
+                    f.writelines(new_lines)
+                print(f"Updated {index_path}")
+                return True
+            return False
+
+        def update_foreign_lang_index(index_path):
+            print(f"Processing {index_path}...")
+            
+            if not os.path.exists(index_path):
+                print(f"Warning: {index_path} does not exist")
                 return False
             
-            # 파일 저장
-            with open(index_path, 'w', encoding='utf-8') as f:
-                f.write(content)
+            # 변경된 파일과 새로 추가된 파일 모두 확인
+            result = subprocess.run(['git', 'diff', '--name-only', '--diff-filter=d', 'HEAD^', 'HEAD'], 
+                                capture_output=True, text=True)
+            changed_files = result.stdout.splitlines()
             
-            return True
+            # en과 jp 폴더의 날짜 형식 파일 필터링
+            en_files = [f for f in changed_files if f.startswith('foreign-lang/en/') 
+                        and re.match(r'foreign-lang/en/\d{8}\.md$', f)]
+            jp_files = [f for f in changed_files if f.startswith('foreign-lang/jp/') 
+                        and re.match(r'foreign-lang/jp/\d{8}\.md$', f)]
             
-        # Get changed files first
-        result = subprocess.run(['git', 'diff', '--name-only', 'HEAD^', 'HEAD'], 
+            if not (en_files or jp_files):
+                return False
+            
+            with open(index_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                lines = content.splitlines(True)  # Keep line endings
+            
+            # 기존 링크 수집
+            existing_en_links = set()
+            existing_jp_links = set()
+            in_english = False
+            in_japanese = False
+            
+            for line in lines:
+                if '## English' in line:
+                    in_english = True
+                    in_japanese = False
+                elif '## Japanese' in line:
+                    in_english = False
+                    in_japanese = True
+                elif line.strip().startswith('#'):
+                    in_english = False
+                    in_japanese = False
+                elif line.strip().startswith('- ['):
+                    match = re.search(r'\((.+?)\)', line)
+                    if match:
+                        if in_english:
+                            existing_en_links.add(match.group(1))
+                        elif in_japanese:
+                            existing_jp_links.add(match.group(1))
+            
+            new_lines = []
+            updated = False
+            
+            for line in lines:
+                if '#### Last updated:' in line and (en_files or jp_files):
+                    new_lines.append(f'#### Last updated: {get_korean_time()}\n')
+                    updated = True
+                elif '## English' in line:
+                    new_lines.append(line)
+                    # 새 영어 파일 추가
+                    for file in sorted(en_files):
+                        rel_path = os.path.relpath(file, "foreign-lang")
+                        if rel_path not in existing_en_links:
+                            date = re.search(r'(\d{8})\.md$', file).group(1)
+                            formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+                            new_lines.append(f'- [{formatted_date}]({rel_path})\n')
+                            updated = True
+                elif '## Japanese' in line:
+                    new_lines.append(line)
+                    # 새 일본어 파일 추가
+                    for file in sorted(jp_files):
+                        rel_path = os.path.relpath(file, "foreign-lang")
+                        if rel_path not in existing_jp_links:
+                            date = re.search(r'(\d{8})\.md$', file).group(1)
+                            formatted_date = f"{date[:4]}-{date[4:6]}-{date[6:]}"
+                            new_lines.append(f'- [{formatted_date}]({rel_path})\n')
+                            updated = True
+                else:
+                    new_lines.append(line)
+            
+            if updated:
+                with open(index_path, 'w', encoding='utf-8') as f:
+                    f.writelines(new_lines)
+                print(f"Updated {index_path}")
+                return True
+            return False
+        
+        # Get changed files
+        result = subprocess.run(['git', 'diff', '--name-only', '--diff-filter=d', 'HEAD^', 'HEAD'], 
                              capture_output=True, text=True)
         changed_files = result.stdout.splitlines()
         print("Changed files:", changed_files)
         
-        # Set any_updates to True at the start
-        any_updates = True
-        
-        # Then update files
+        # Update regular folders
         if any(f.startswith('content-production/') for f in changed_files):
-            update_index_file('content-production/index.md', 'content-production')
-        
-        if any(f.startswith('foreign-lang/') for f in changed_files):
-            update_index_file('foreign-lang/index.md', 'foreign-lang', True)
+            update_regular_index('content-production/index.md', 'content-production')
         
         if any(f.startswith('webdev/') for f in changed_files):
-            update_index_file('webdev/index.md', 'webdev')
+            update_regular_index('webdev/index.md', 'webdev')
         
-        # Finally update README.md
+        # Update foreign-lang folder
+        if any(f.startswith('foreign-lang/') for f in changed_files):
+            update_foreign_lang_index('foreign-lang/index.md')
+        
+        # Update README.md
         if os.path.exists('README.md'):
             print("Updating README.md")
             with open('README.md', 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # 정규식을 사용하여 마지막 Last updated 줄을 찾아 교체
             pattern = r'#### Last updated: .*?\n'
             new_content = re.sub(pattern, f'#### Last updated: {get_korean_time()}\n', content)
             
-            # 파일 쓰기
             with open('README.md', 'w', encoding='utf-8') as f:
                 f.write(new_content)
             print("Updated README.md")
         
-        # Exit with status code
-        exit(0 if any_updates else 1)
+        exit(0)
         EOF
 
     - name: Check for changes
