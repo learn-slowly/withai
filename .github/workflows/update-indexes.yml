@@ -10,6 +10,11 @@ on:
       - 'webdev/**/*.md'
       - '.github/workflows/update-indexes.yml'
 
+# 동시 실행 제어를 위한 concurrency 설정 추가
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   update-indexes:
     runs-on: ubuntu-latest
